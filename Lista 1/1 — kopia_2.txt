@@ -1,0 +1,41 @@
+
+void Kolacja::dodaj_nowe()
+{
+    string nazwa, kalorie, linia, nowa_linia;
+    int licznik=0;
+    ifstream lista_1;
+    ofstream lista_2;
+
+    cout<<"Podaj nazwe swojego dania \t";
+    cin.get();
+    getline(cin, nazwa);
+    cout<<"\nPodaj ilosc kalorii \t";
+    cin>>kalorie;
+
+    nowa_linia= kalorie + "; " + nazwa + ";";
+
+    lista_1.open("Bazy_danych/Kolacje.txt", ios::in);
+    lista_2.open("Bazy_danych/Kolacje.txt", ios::out);
+    if(lista_1.good() == true)
+    {
+        while(!lista_1.eof())
+        {
+            getline(lista_1, linia);
+            if (licznik==0)
+            {
+                if (this->ilosc_kalorii(linia)>atoi(kalorie.c_str()))
+                {
+                    lista_2 << nowa_linia<<endl;
+                    lista_2 << linia<<endl;
+                    licznik=1;
+                }
+            }
+            else lista_2 << linia<<endl;
+        }
+        lista_1.close();
+        lista_2.close();
+    }
+    remove("Bazy_danych\\Kolacje.txt");
+    rename("Bazy_danych\\Kolacje_2.txt","Bazy_danych\\Kolacje.txt");
+    return;
+}

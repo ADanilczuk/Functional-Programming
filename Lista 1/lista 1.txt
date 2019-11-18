@@ -1,0 +1,45 @@
+let rec element_ciagu x =
+	if x=0 then 0
+		else 
+		1+ (2* element_ciagu (x-1))
+	;;
+	
+let rec element_ciagu_rek x acc =
+	if x=0 then acc
+		else 
+		element_ciagu_rek (x-1) (2*acc + 1)
+	;;
+	
+let rec element_rek x =
+	element_ciagu_rek x 0
+	;;
+	
+	
+	
+----------
+3.
+
+let zlozenie f g x = f (g (x));;
+let it_zlozenie f g x n =
+	if n=0 then f (g x)
+	else it_zlozenie f (zlozenie f g x) x (n-1)
+	;;
+	
+let multiply a b =
+	if a=0 then 0
+	else
+	 if a=1 then 1
+	 else b* (multiply (a-1) b)
+	 ;;
+
+let expand a b =
+	if b=0 then 1
+	else a* (expand a (b-1)
+	;;
+	
+----------
+4.
+
+let 
+ 
+ 

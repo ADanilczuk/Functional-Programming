@@ -1,0 +1,108 @@
+
+
+
+
+type 'a lnode = {item: 'a; mutable next: 'a lnode};;
+
+
+(*/////*)
+type point = {mutable x:int};;
+let p = {x=0};;
+assert (p.x=0);;
+let t = p;;
+p.x <- 4;
+assert (p.x=4);;
+assert (t.x=4);;
+assert (t.x == p.x);;
+(*/////*)
+
+
+let create : int -> int lnode =
+	fun n ->
+		let rec poczatek : int lnode = {item=1; next=poczatek} in
+		let rec wstaw : int lnode -> int -> int -> unit =
+			fun aktualne ktora ile ->
+				if ktora > ile then 
+					()
+				else
+				(
+					let nowe : int lnode = {item = ktora; next = aktualne.next} in
+					aktualne.next <- nowe;
+					wstaw nowe (ktora+1) ile
+				)
+		in wstaw poczatek 2 n;
+		poczatek;; 
+			
+
+let rec x = {item = 1; next = {item =2; next = {item = 3; next = x}}};;
+
+(*assert ((create 3) = x);;*)
+assert (x.item = 1);;
+assert (x.next.item = 2);;
+assert (x.next.next.item = 3);;
+assert (x.next.next.next.item = 1);;
+
+
+
+let jozef : int -> int -> int list =
+	fun n m -> 
+		if m < 1 then failwith "!!!!!!!!";
+		let x : int list ref = ref [] in
+		let rec usun_co : int -> int -> int lnode -> int lnode -> unit = 
+			fun m ile_jeszcze poprz akt -> 
+				if ile_jeszcze = 0 then
+				(
+					if akt == akt.next then 
+						x := (akt.item) :: (!x)
+					else
+					(
+						x := (akt.item) :: (!x);
+						poprz.next <- akt.next;
+						usun_co m (m-1) poprz akt.next 
+					)
+				)
+				else 
+					usun_co m (ile_jeszcze - 1) akt (akt.next)
+
+		in let k = create n
+		in 
+			if m = 1 then
+			(
+				let rec szybko : int lnode -> int lnode -> unit = 
+					fun lnode pierw -> 
+						if lnode == pierw then 
+							()
+						else
+						(
+							x := (lnode.item) :: (!x);
+							szybko lnode.next pierw
+						)
+				in 
+				(
+					x := (k.item) :: (!x);
+					szybko k.next k;
+					List.rev !x
+				)
+			)
+			else
+				(usun_co m (m-2) k k.next; List.rev !x)
+		;;
+
+let rec print_list : int list -> unit =
+	fun lista ->
+	 match lista with
+	 | [] -> ()
+	 | a:: b -> print_int a; print_string " "; print_list b;;
+
+
+
+assert ((jozef 7 3) = [3;6;2;7;5;1;4]);;
+assert ((jozef 7 2) = [2;4;6;1;5;3;7]);;
+assert ((jozef 7 1) = [1;2;3;4;5;6;7]);;
+
+
+
+
+
+
+

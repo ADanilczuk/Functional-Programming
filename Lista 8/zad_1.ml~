@@ -1,0 +1,39 @@
+
+
+module type PQUEUE =
+sig
+type priority
+type 'a t
+exception EmptyPQueue
+        
+val empty : 'a t -> 'a t
+val insert : 'a t -> priority -> 'a -> 'a t
+val remove : 'a t -> priority * 'a * 'a t
+end;;
+
+module PQueue : PQUEUE with type priority = int =
+struct 
+  type priority = int
+
+  type 'a t = Empty | Push of (priority * 'a) list
+
+  exception EmptyPQueue
+
+  let empty = Empty
+
+  let insert pq p e = 
+    let rec aux pq =
+      (match pq with 
+      | Empty -> (p,e)::[]
+      | Push ((px, ex)::xs) -> 
+          (match px with 
+            | x when x > p -> (x,ex)::(aux xs)
+            | x when x <= p -> (p,e)::pq))
+    in aux pq
+  
+  let remove pq =
+    match pq with 
+    | [] -> raise(EmptyPQueue)
+    | (a,b)::xs -> (a,b,xs)
+
+end;;

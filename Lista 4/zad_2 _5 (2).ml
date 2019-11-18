@@ -1,0 +1,79 @@
+
+(*-----  2 ------*)
+
+type 'a btree = Leaf | Node of 'a btree * 'a * 'a btree
+
+let split list n =
+  let rec aux i acc = function
+    | [] -> List.rev acc, []
+    | h :: t as l -> if i = 0 then List.rev acc, l
+                      else aux (i-1) (h :: acc) t  in
+  aux n [] list;; 
+
+
+let make_btree tags = 
+  let rec aux acc tags =
+    match tags with 
+    | [] -> acc
+    | x::xs -> let (lh,rh) = split xs ((List.length xs) / 2) in
+                Node((aux acc lh), x, (aux acc rh))
+  in (aux Leaf tags);;
+
+
+
+ let is_balanced tree =
+  let rec aux tree =
+    match tree with 
+    | Leaf -> (0,true)
+    | Node (ltree,v,rtree) -> let lb = (aux ltree) in
+                                match lb with 
+                                | (_,false) -> (-1,false)
+                                | (lver,true) -> let rb = aux rtree in 
+                                                  match rb with 
+                                                  | (_, false) -> (-1,false)
+                                                  | (rver, true) -> if abs (lver-rver) <= 1 then (lver+rver+1,true) else (-1,false)
+  in snd (aux tree);;
+
+let tree2 = Node (Node(Leaf,2,Node(Leaf,1,Leaf)), 1, (Node (Node(Leaf,3,Leaf),4,Node(Node(Leaf,5,Leaf),6,Leaf))));;
+
+let tree1 = Node (Node (Leaf, 5, Node (Leaf, 4, Leaf)), 2, Node (Node (Leaf, 4, Leaf), 5, Node (Leaf, 6, Leaf)));;
+let tree3 = Node(Leaf,1,Node(Leaf,2,Node(Leaf,3,Leaf)));;
+let tree0 = Node(Node(Leaf,2,Leaf),4,Leaf);;
+
+
+
+(*------- 5 -------*)
+
+
+let prod tree = 
+  let rec aux acc tree = 
+    match tree with
+    | Leaf -> acc
+    | Node (ltree, v, rtree) -> (aux (aux (v*acc) ltree) rtree)
+  in aux 1 tree;;
+
+
+let prod2 tree =
+  let rec prod_cps tree k = 
+    match tree with
+    | Leaf -> k 1
+    | Node (ltree, v, rtree) -> if v=0 then 0
+                                else
+                                  prod_cps ltree (fun left_prod -> (prod_cps rtree (fun z -> k (v*left_prod * z))))
+  in prod_cps tree (fun x -> x);;
+
+                              
+
+
+(*------ 6 ----*)
+
+type 'a place = 'a list * 'a list;;
+             (*odwrocona*)
+
+let add x (xsr, xs) = (xsr, x::xs);;
+let del x (xsr, _::xs) = (xsr, xs);;
+let next (xsr, x::xs) = (x::xsr, xs);;
+
+
+type 'd btdxt = Root | Left of 'a * 'a btree * a' btxt | Right  of 'a * 'a btree * a' btxt;;
+

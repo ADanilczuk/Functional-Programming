@@ -1,0 +1,19 @@
+
+ type 'a llist = LNil | LCons of 'a * (unit -> 'a llist);;
+
+ let rec ltake = function
+(0, _) -> []
+| (_, LNil) -> []
+| (n, LCons(x,xf)) -> x::ltake(n-1, xf())
+ ;;
+
+ let rec lsum = function
+(0. , _) -> []
+| (_, LNil) -> []
+| (n, LCons(x,xf)) -> x-. lsum (n - 1, xf())
+;;
+
+ let rec lpi k =LCons ((1.0 /. k) , function () -> lpi (k+.2.0));;
+
+
+                                      

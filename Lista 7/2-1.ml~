@@ -1,0 +1,84 @@
+
+
+type 'a list_mutable = LMnil | LMcons of 'a * 'a list_mutable ref;;
+
+let rec print_mut : 'a list_mutable -> unit =
+	fun mut -> match mut with
+	| LMnil -> ()
+	| LMcons(a, b) -> print_string a; print_string " "; print_mut !b;;
+
+let rec porownaj : 'a list -> 'a list_mutable -> bool =
+	fun lista mulista ->
+	match lista, mulista with
+	| ([], LMnil) -> true
+	| ((a::b), LMcons (h, t)) -> a = h && porownaj b (!t)
+	| _ -> false;;
+
+let rec wstaw_na : 'a list_mutable ref -> int -> 'a -> unit =
+	fun lista gdzie co -> 
+		if gdzie = 0 then
+			lista := LMcons(co, ref (!lista))
+		else
+			match !lista with
+			| LMnil -> failwith "nie ma tylu el"
+			| LMcons(a, b) -> wstaw_na b (gdzie-1) co;;
+
+
+let rec concat_copy : 'a list_mutable -> 'a list_mutable -> 'a list_mutable =
+	fun to_copy lista ->
+		match to_copy with
+		| LMnil -> lista
+		| LMcons (h, t) ->
+			LMcons(h, ref(concat_copy (!t) lista));;
+
+
+
+let lista1 : 'a list_mutable = LMcons("aaa", ref (LMcons("bbb", ref LMnil)));;
+let lista2 : 'a list_mutable = LMcons("111", ref (LMcons("222", ref LMnil)));;
+let skonkat : 'a list_mutable = concat_copy lista1 lista2;;
+
+
+
+
+assert (porownaj ["aaa";"bbb";"111";"222"] skonkat );;
+wstaw_na (ref skonkat) 4 "ccc";;
+(*print_mut skonkat;;*)
+assert (porownaj ["aaa";"bbb";"111";"222";"ccc"] skonkat );;
+assert (porownaj ["aaa";"bbb"] lista1 );; (*lista1 skopiowana wiec nieruszona*)
+assert (porownaj ["111";"222";"ccc"] lista2);; (*lista 2 zostala zywcem wzieta*)
+
+
+
+
+
+
+
+let concat_share : 'a list_mutable ref -> 'a list_mutable ref -> 'a list_mutable ref =
+	fun wsk_l_1 wsk_l_2 ->
+		match !wsk_l_1 with
+		| LMnil -> wsk_l_2
+		| _ ->
+			let rec doing : 'a list_mutable ref -> 'a list_mutable ref -> unit =
+				fun wsk_l_1 wsk_l_2 ->
+					match !wsk_l_1 with
+					| LMnil -> failwith "coo"
+					| LMcons(a, b) ->
+						if (!b) = LMnil then
+							b := !wsk_l_2
+						else
+							doing b wsk_l_2
+
+			in doing wsk_l_1 wsk_l_2; wsk_l_1;;
+
+
+let skonkat : 'a list_mutable ref = concat_share (ref lista1) (ref lista2);;
+
+assert (porownaj ["aaa";"bbb";"111";"222";"ccc"] !skonkat );;(*razem z ccc po poprzedni podpunkt zmodyfikowal jedna z list*)
+wstaw_na skonkat 4 "www";;
+
+assert (porownaj ["aaa";"bbb";"111";"222";"www";"ccc"] !skonkat );;
+assert (porownaj ["aaa";"bbb";"111";"222";"www";"ccc"] lista1 );; (*lista1 to w zasadzie nasza lista*)
+assert (porownaj ["111";"222";"www";"ccc"] lista2);; (*lista 2 jest jej czynnym skladnikiem*)
+
+
+

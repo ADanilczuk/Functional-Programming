@@ -1,0 +1,25 @@
+let rec make_moves queue max_fill res n volume =
+  match List.length res with
+  | x when x = n -> res
+  | _ ->
+    match queue with
+  | [] -> raise(Error)
+    | (state, moves)::rest ->
+      let new_queue = rest@((fill_all state max_fill moves)@(drain_all state max_fill moves)@(transfer_all state max_fill moves))
+        in
+        let is_v = is_volume state volume in
+          match is_v with
+          | true -> make_moves new_queue max_fill ((List.rev moves)::res) n volume
+          | false -> make_moves new_queue max_fill res n volume;;
+ 
+let fqueue n =
+  let rec hlp it empty =
+    match it with
+    | x when x = n -> empty
+    | _ -> hlp (it+1) (0::empty)
+  in [(hlp 0 [], [])];;
+ 
+ 
+let rec nsols glasses volume n res = let newres = make_moves (fqueue (List.length glasses)) glasses res n volume in
+                                LCons(newres,
+                                function()-> nsols glasses volume (n+1) newres);;

@@ -1,0 +1,32 @@
+(*----- 3 -----*)
+
+type 'a logical_formula = Var of char| Neg of 'a logical_formula | Con of 'a logical_formula * 'a logical_formula
+                          | Dis of 'a logical_formula * 'a logical_formula | Imp of  'a logical_formula * 'a logical_formula;;
+type 'a frame = Assumption of 'a logical_formula * 'a logical_formula list;;
+
+type 'a ded = Fr_Con of 'a frame * 'a logical_formula;;
+
+
+(*----- 4 ------*)
+(*
+let rec pos_neg form pos neg =
+  match form with
+  |[] -> (pos, neg)
+  |Var -> (form::pos, neg)
+  |Con(a,b)| Dis(a,b) -> ((fst (pos_neg a pos neg))::(fst (pos_neg b pos neg)) , ((snd (pos_neg a pos neg))::(snd (pos_neg b pos neg))))
+  |Imp(a,b) -> ( (fst (pos_neg b pos neg))::(snd (pos_neg a pos neg)) , (snd (pos_neg b pos neg))::(fst (pos_neg a pos neg)));;  *)
+
+let rec pos_neg_proof form pos neg =
+  match form with
+  |[] -> (pos, neg)
+  |Var(a) -> (a::pos, neg)
+  |Con(a,b)| Dis(a,b) -> ((fst (pos_neg_proof a pos neg))::(fst (pos_neg_proof b pos neg)) ,
+                          ((snd (pos_neg_proof a pos neg))::(snd (pos_neg_proof b pos neg))))
+  |Imp(a,b) -> ( (fst (pos_neg_proof b pos neg))::(snd (pos_neg_proof a pos neg)) ,
+                 (snd (pos_neg_proof b pos neg))::(fst (pos_neg_proof a pos neg)))
+  |Assumption (a,b) -> ( (fst (pos_neg_proof b pos neg))::(snd (pos_neg_proof a pos neg)) ,
+                         (fst (pos_neg_proof a pos neg))::(snd (pos_neg_proof b pos neg)) )
+  |Fr_Con (a,b) -> ( (fst (pos_neg_proof a pos neg))::(fst (pos_neg_proof b pos neg)) ,
+                     (snd (pos_neg_proof a pos neg))::(snd (pos_neg_proof b pos neg)) );;
+
+                 

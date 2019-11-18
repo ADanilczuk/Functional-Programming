@@ -1,0 +1,42 @@
+
+let asssert = fun booll -> if booll then print_string "works\n" 
+	else print_string "ERROR\n";;
+
+let rec add_to_each : 'a list list-> 'a -> 'a list list =
+	fun lista el -> match lista with
+		[] -> []
+	  | a::tail -> [a@[el]]@(add_to_each tail el);;
+
+let rec give_subs_without_empty : 'a list -> 'a list list =
+	fun lista -> match lista with
+		  [] -> failwith "jak do tego doszlo nwm"
+		| h::[] -> [[h]]
+		| h::tail -> [[h]]@(give_subs_without_empty tail)
+				@(add_to_each (give_subs_without_empty tail) h);;
+
+
+let sublists : 'a list -> 'a list list = 
+	fun lista -> if lista = [] 
+					then [] 
+				else 
+					[[]]@give_subs_without_empty(lista);;
+
+
+asssert ((sublists []) = []);;
+asssert ((sublists [1]) = [[]; [1]]);;
+asssert ((sublists [1;2;3]) = [[];[1];[2];[3];[3;2];[2;1];[3;1];[3;2;1]]);;
+
+(* DEBUG
+let rec print_list = function lista -> match lista with
+[] -> print_string ""
+| e::l -> print_int e ; print_string "," ; print_list l;;
+
+let rec print_list_list = function lista -> match lista with
+[] -> print_string ""
+| e::l -> print_string "["; print_list e ; print_string "]" ; print_list_list l;;
+
+print_list_list (sublists [1]);;*)
+
+
+
+
